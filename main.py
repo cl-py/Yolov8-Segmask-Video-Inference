@@ -31,5 +31,4 @@ def process_frame(frame: np.ndarray, _) -> np.ndarray:
     
     return frame
 
-#idk what this does lol
 sv.process_video(source_path=VIDEO_PATH, target_path=f"result.mp4", callback=process_frame)
