@@ -1,34 +1,35 @@
-# -*- coding: utf-8 -*-
-
-import supervision as sv
-import numpy as np
-import rgb_array #use this only if we get the rest of it working lol.
+import cv2
 from ultralytics import YOLO
 
-#-------- model and video information. --------#
-VIDEO_PATH = "video.mp4" #replace this with video path.
-model = YOLO("best.pt") #replace this with model (.pt file).
+# Load the YOLOv8 model
+model = YOLO('best.pt')
 
-video_info = sv.VideoInfo.from_video_path(VIDEO_PATH)
+# Open the video file
+video_path = r'\Users\ninth\Documents\code\SEGMENTATIONMODEL\aimodeltestvid.mp4'
+cap = cv2.VideoCapture(video_path)
 
-#-------- process every frame in the video --------#
-def process_frame(frame: np.ndarray, _) -> np.ndarray:
-    results = model(frame, imgsz=1280)[0] #imports the frame for processing.
-    
-    segmentations = results.pred.segmentation #retrieves segmented mask information from yolov8 model.
-    
-    masks = [s[c].numpy() for s in segmentations]
-    
-    #creates binary pixel array for mask.
-    binary_masks = []
-    for i, mask in enumerate(masks):
-        binary_mask = (masks == i)
-        binary_masks.append(binary_mask)
-        
-    segmented_frame = frame.copy()
-    for mask in binary_masks:
-        segmented_frame[~mask] = 0;
-    
-    return frame
+# Loop through the video frames
+while cap.isOpened():
+    # Read a frame from the video
+    success, frame = cap.read()
 
-sv.process_video(source_path=VIDEO_PATH, target_path=f"result.mp4", callback=process_frame)
+    if success:
+        # Run YOLOv8 inference on the frame
+        results = model(frame)
+
+        # Visualize the results on the frame
+        annotated_frame = results[0].plot()
+
+        # Display the annotated frame
+        cv2.imshow("YOLOv8 Inference", annotated_frame)
+
+        # Break the loop if 'q' is pressed
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+    else:
+        # Break the loop if the end of the video is reached
+        break
+
+# Release the video capture object and close the display window
+cap.release()
+cv2.destroyAllWindows()
