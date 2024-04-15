@@ -2,13 +2,13 @@ import cv2
 from ultralytics import YOLO
 
 # Load the YOLOv8 model
-model = YOLO('best-detect.pt')
+model = YOLO('best-seg-test.pt')
 
 # Open the video file
 video_path = r'\Users\ninth\Documents\code\SEGMENTATIONMODEL\aimodeltestvid.mp4'
 cap = cv2.VideoCapture(video_path)
 
-count = 1
+count = 1 
 
 # Loop through the video frames
 while cap.isOpened():
@@ -20,7 +20,7 @@ while cap.isOpened():
         results = model(frame)
 
         # Visualize the results on the frame
-        annotated_frame = results[0].plot()
+        annotated_frame = results[0].plot(boxes=False, labels=False)
 
         # Display the annotated frame
         cv2.imshow("YOLOv8 Inference", annotated_frame)
