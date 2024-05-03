@@ -1,5 +1,6 @@
 import cv2
 from ultralytics import YOLO
+import numpy as np 
 
 # Load the YOLOv8 model
 model = YOLO('best-seg-test.pt')
@@ -8,48 +9,37 @@ model = YOLO('best-seg-test.pt')
 video_path = r'\Users\ninth\Documents\code\SEGMENTATIONMODEL\aimodeltestvid.mp4'
 cap = cv2.VideoCapture(video_path)
 
+count = 1
 
 def convertToBinaryMatrix(image):
     """
-    Loops through all pixels in the image, locating pixels with high R values and
-    assigning those pixels to R = 255. Otherwise, assigns to BLACK.
+    Sets pixels with high R channel values to R = 255, otherwise sets pixel color to black.
     Parameters
     ----------
-    image : Frame from YOLOv8 results.plot.
-        Contains the processed frame retrieved after running YOLOv8 inference.
+    image : numpy.ndarray
 
     Returns
     -------
-    rgb_values : TYPE
-        DESCRIPTION.
+    binary_imaage : numpy.ndarray
 
     """
+    
+    # Make a copy of the image
+    binary_image = np.copy(image) 
 
-    width, height = image.size
-    
-    
-    # Iterates through entire image pixel by pixel.
-    for y in range(height):
-        
-        for x in range(width):
-            
-            pixel_value = annotated_frame[200, 100]
-            
-            # Appends binary pixel values to a 2D array. 
-            
-            #if pixel_value[0] > 120:
-                #rgb_values.append(0)
-                
-            #else:
-                #rgb_values.append(1)
-                
-    return image
+    # Extract the red channel
+    red_channel = binary_image[:, :, 2]
+
+    # Set pixels with R > 120 to (0, 0, 255) and others to (0, 0, 0)
+    binary_image[red_channel > 120] = [0, 0, 255]
+    binary_image[red_channel <= 120] = [0, 0, 0]
+
+    return binary_image
 
 
 # Loop through the video frames
 while cap.isOpened():
     
-    count = 1
     
     # Read a frame from the video
     success, frame = cap.read()
@@ -61,17 +51,13 @@ while cap.isOpened():
         # Visualize the results on the frame
         annotated_frame = results[0].plot(boxes=False, labels=False)
 
-        # Display the annotated frame
-        cv2.imshow("YOLOv8 Inference", annotated_frame)
-        
-        pixel_value = annotated_frame[200, 100]
-
-        print("RGB values at (100, 200):", pixel_value)
+        # Display the annqotated frame
+        #cv2.imshow("YOLOv8 Inference", annotated_frame)
     
-        #annotated_frame = convertToBinaryMatrix(annotated_frame)
+        cv2.imwrite("frame%d.png" % count, convertToBinaryMatrix(annotated_frame))
 
-        #Save the frame to working folder
-        cv2.imwrite("frame%d.png" % count, annotated_frame)
+        # Save the frame to working folder
+        #cv2.imwrite("frame%d.png" % count, annotated_frame)
         
         count += 1 
 
