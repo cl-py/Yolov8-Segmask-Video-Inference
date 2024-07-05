@@ -51,13 +51,11 @@ while cap.isOpened():
         # Visualize the results on the frame
         annotated_frame = results[0].plot(boxes=False, labels=False)
 
-        # Display the annqotated frame
-        #cv2.imshow("YOLOv8 Inference", annotated_frame)
-    
-        cv2.imwrite("frame%d.png" % count, convertToBinaryMatrix(annotated_frame))
+        # Display the annqotated frame 
+        #cv2.imshow("YOLOv8 Inference", annotated_frame) // USED FOR TESTING PURPOSES ONLY. THIS LINE SHOULD NOT BE UNCOMMENTED
 
         # Save the frame to working folder
-        #cv2.imwrite("frame%d.png" % count, annotated_frame)
+        cv2.imwrite("frame%d.png" % count, convertToBinaryMatrix(annotated_frame))
         
         count += 1 
 
